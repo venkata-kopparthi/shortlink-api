@@ -43,6 +43,21 @@ describe("POST /api/links", () => {
       .expect(400);
   });
 
+  it("returns 400 for malformed JSON and 413 for oversized bodies", async () => {
+    const app = newApp();
+    const bad = await request(app)
+      .post("/api/links")
+      .set("Content-Type", "application/json")
+      .send('{"url": ')
+      .expect(400);
+    expect(bad.body.error).toBe("Request body is not valid JSON");
+
+    await request(app)
+      .post("/api/links")
+      .send({ url: "https://a.com/" + "x".repeat(20_000) })
+      .expect(413);
+  });
+
   it("requires the API key when one is configured", async () => {
     const app = newApp({ apiKey: "secret" });
     await request(app).post("/api/links").send({ url: "https://a.com" }).expect(401);

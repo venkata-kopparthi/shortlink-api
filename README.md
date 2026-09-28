@@ -94,11 +94,12 @@ Errors always return JSON with a message you can show to users.
 
 | Status | When |
 | --- | --- |
-| `400` | Invalid input (includes `details` with the field and message) |
+| `400` | Invalid input (includes `details` with the field and message) or malformed JSON |
 | `401` | API key missing or wrong |
 | `404` | Unknown short code |
 | `409` | Custom alias already taken |
 | `410` | Link has expired |
+| `413` | Request body over 10 kB |
 | `429` | Too many write requests |
 
 ## Project structure
