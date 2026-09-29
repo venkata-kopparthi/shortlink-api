@@ -26,6 +26,16 @@ describe("POST /api/links", () => {
     expect(res.body.error).toContain("already taken");
   });
 
+  it("treats custom aliases as case-insensitive", async () => {
+    const app = newApp();
+    const res = await request(app).post("/api/links").send({ url: "https://a.com", alias: "Promo" }).expect(201);
+    expect(res.body.code).toBe("promo");
+
+    await request(app).get("/PROMO").expect(302);
+    await request(app).get("/api/links/Promo").expect(200);
+    await request(app).post("/api/links").send({ url: "https://b.com", alias: "PROMO" }).expect(409);
+  });
+
   it("rejects invalid URLs with a field-level message", async () => {
     const res = await request(newApp())
       .post("/api/links")

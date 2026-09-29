@@ -29,7 +29,7 @@ export function linksRouter(repo: LinkRepository, options: { apiKey?: string; ba
   const auth = requireApiKey(options.apiKey);
 
   const findOr404 = (code: string): Link => {
-    const link = repo.find(code);
+    const link = findLink(repo, code);
     if (!link) throw new HttpError(404, `No link found for "${code}"`);
     return link;
   };
@@ -42,7 +42,7 @@ export function linksRouter(repo: LinkRepository, options: { apiKey?: string; ba
       throw new HttpError(400, "expiresAt must be in the future");
     }
 
-    let code = input.alias;
+    let code = input.alias?.toLowerCase();
     if (code) {
       if (repo.exists(code)) throw new HttpError(409, `The alias "${code}" is already taken`);
     } else {
@@ -78,11 +78,17 @@ export function linksRouter(repo: LinkRepository, options: { apiKey?: string; ba
   return router;
 }
 
+// Custom aliases are stored lowercase, so /Promo and /promo both work.
+// Generated codes stay case-sensitive, hence the exact match first.
+function findLink(repo: LinkRepository, code: string) {
+  return repo.find(code) ?? repo.find(code.toLowerCase());
+}
+
 /** GET /:code sends the visitor on to the original URL and records the click. */
 export function redirectHandler(repo: LinkRepository): RequestHandler {
   return (req, res) => {
     const code = req.params.code as string;
-    const link = repo.find(code);
+    const link = findLink(repo, code);
     if (!link) throw new HttpError(404, `No link found for "${code}"`);
     if (link.expiresAt && new Date(link.expiresAt) <= new Date()) {
       throw new HttpError(410, "This link has expired");

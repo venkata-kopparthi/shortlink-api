@@ -8,7 +8,7 @@ Create short links (random or custom aliases, with optional expiry), redirect vi
 
 ## Features
 
-- **Short links** with random 7-character codes or custom aliases, plus optional expiry dates
+- **Short links** with random 7-character codes or custom aliases (case-insensitive), plus optional expiry dates
 - **Click analytics**: total clicks, clicks per day and top referrers
 - **Validation** with Zod, returning field-level error messages
 - **Security**: optional API key for write routes, rate limiting on writes, Helmet headers, a 10 kB body limit, and only `http`/`https` URLs accepted
